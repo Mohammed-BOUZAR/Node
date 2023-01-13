@@ -13,9 +13,66 @@ const courseSchema = new mongoose.Schema({
 });
 
 const Course = mongoose.model('Course', courseSchema);
-const course = new Course({
-    name: 'NodeJS Course',
-    author: 'Mohammed',
-    tags: ['node', 'backend'],
-    isPublished: true
-});
+
+async function createCourse(){
+    const course = new Course({
+        name: 'Angular Course',
+        author: 'Mohammed',
+        tags: ['angular', 'frontend'],
+        isPublished: true
+    });
+
+    const result = await course.save();
+    console.log(result);
+}
+
+//createCourse();
+
+async function getCourses(){
+    
+    const pageNumber = 2;
+    const pageSize = 10;
+
+    // comparison operators
+    // eq (equal)
+    // ne (not equal)
+    // gt (greater than)
+    // gte (greater than or equal)
+    // lt (less than)
+    // lte (less than or equal)
+    // in 
+    // nin (not in)
+
+
+    // logical operators
+    // or
+    // and
+
+    const courses = await Course
+    // .find({price: {$gt: 10, $lte: 20}})
+    // .find({price: {$in: [10, 15, 20]}})
+
+    // regular expression 
+
+    // start with
+    // .find({author: /^Mohammed/})
+
+    // end with
+    // .find({author: /Mohammed$/i})
+
+    
+    // contains 
+    // .find({author: /.*Mohammed.*/i})
+
+    
+    .find({author: "Mohammed"})
+    //.or([{author: "Mohammed"}, {isPublished: true}])
+    //.and([{author: "Mohammed"}, {isPublished: true}])
+    .skip((pageNumber - 1) * pageSize)
+    .limit(pageSize)
+    .sort({name: 1})
+    .select({name: 1, tags: 1});
+    console.log(courses);
+}
+
+getCourses();

@@ -5,7 +5,10 @@ mongoose.connect('mongodb://127.0.0.1:27017/playground')
 .catch(err => console.error("MongoDB isn't connected ...."));
 
 const courseSchema = new mongoose.Schema({
-    name: String,
+    name: {
+        type: String,
+        required: true
+    },
     author: String,
     tags: [String],
     date: {type: Date, default: Date.now},
@@ -16,17 +19,22 @@ const Course = mongoose.model('Course', courseSchema);
 
 async function createCourse(){
     const course = new Course({
-        name: 'Angular Course',
+        name: 'NodeJS Course',
         author: 'Mohammed',
-        tags: ['angular', 'frontend'],
+        tags: ['node', 'backend'],
         isPublished: true
     });
 
-    const result = await course.save();
-    console.log(result);
+    try {
+        // await course.validate();
+        const result = await course.save();
+        console.log(result);
+    } catch (error) {
+        console.log(error.message);
+    }
 }
 
-//createCourse();
+// createCourse();
 
 async function getCourses(){
     
@@ -75,4 +83,55 @@ async function getCourses(){
     console.log(courses);
 }
 
-getCourses();
+//getCourses();
+
+async function updateCourse(id){
+
+    // Query First
+    /*const course = await Course.findById(id);
+    if(!course) return;
+
+    //course.isPublished = true;
+    //course.author = 'Another Author';
+
+    // or
+    course.set({
+        isPublished: true,
+        author: 'Another'
+    });
+
+    const result = await course.save();
+    console.log(result);*/
+
+    // Update First
+    /*const result = await Course.updateMany({_id: id},{
+    // or
+    const result = await Course.updateOne({_id: id},{
+        $set: {
+            author: 'Last Modified 3',
+            isPublished: false
+        }
+    });
+    console.log(result);*/
+
+    // or
+    const course = await Course.findByIdAndUpdate(id, {
+        $set: {
+            author: 'Mohammed',
+            isPublished: true
+        }
+    }, {new: true});
+    console.log(course);
+}
+
+// updateCourse('63c1da4428840520593e94a0');
+
+async function deleteCourse(id){
+    // const course = await Course.deleteOne({_id: id});
+    // const course = await Course.deleteMany({_id: id});
+    // const course = await Course.findByIdAndRemove({_id: id});
+    const course = await Course.findByIdAndDelete({_id: id});
+    console.log(course);
+}
+
+// deleteCourse('63c2d894da0c74dd77c9bf17');

@@ -7,12 +7,44 @@ mongoose.connect('mongodb://127.0.0.1:27017/playground')
 const courseSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        minlength: 5,
+        maxlength: 255
+    },
+    category: {
+        type: String,
+        required: true,
+        enum: ['web', 'mobile', 'network'],
+        lowercase: true,
+        // uppercase: true,
+        trim: true
     },
     author: String,
-    tags: [String],
-    date: {type: Date, default: Date.now},
-    isPublished: Boolean
+    tags: {
+        type: Array,
+        validate: {
+            // validator: () => Promise.resolve(true),
+            validator: (v) => {
+                return v && v.length > 0;
+            },
+            message: 'A course should have at least one tag.'
+        }
+    },
+    date: {
+        type: Date, 
+        default: Date.now
+    },
+    isPublished: Boolean,
+    price: {
+        type: Number,
+        required: () => {
+            return this.isPublished;
+        },
+        // min: 10,
+        // max: 200,
+        get: v => Math.round(v),
+        set: v => Math.round(v)
+    }
 });
 
 const Course = mongoose.model('Course', courseSchema);
@@ -20,21 +52,24 @@ const Course = mongoose.model('Course', courseSchema);
 async function createCourse(){
     const course = new Course({
         name: 'NodeJS Course',
+        category: '-',
         author: 'Mohammed',
         tags: ['node', 'backend'],
-        isPublished: true
+        isPublished: true,
+        price: 19
     });
 
     try {
         // await course.validate();
         const result = await course.save();
         console.log(result);
-    } catch (error) {
-        console.log(error.message);
+    } catch (ex) {
+        for(field in ex.errors)
+            console.log(ex.errors[field].message);
     }
 }
 
-// createCourse();
+createCourse();
 
 async function getCourses(){
     
@@ -134,4 +169,15 @@ async function deleteCourse(id){
     console.log(course);
 }
 
-// deleteCourse('63c2d894da0c74dd77c9bf17');
+// deleteCourse('63c2f71cb8feb97c6a856a28');
+
+async function deleteCourse(){
+    // const course = await Course.deleteOne({_id: id});
+    // const course = await Course.deleteMany({_id: id});
+    // const course = await Course.findByIdAndRemove({_id: id});
+    const course = await Course.deleteMany({category: 'web'});
+    // course.findByIdAndDelete({_id: course._id});
+    console.log(course);
+}
+
+// deleteCourse();
